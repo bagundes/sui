@@ -1,5 +1,4 @@
-﻿using SAPbouiCOM;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,9 +13,17 @@ namespace SUI.Forms
 
         public SAPbouiCOM.Form FormActive => Conn.UI.Forms.ActiveForm;
 
-  
+
         #region getters
-        public static klib.Values GetValue(ref SAPbouiCOM.Item oItem, string msgnull = null, string invalidValue = null)
+        public static SAPbouiCOM.Form GetForm(string type = null, int count = 0)
+        {
+            if (type == null)
+                return Conn.UI.Forms.ActiveForm;
+            else
+                return Conn.UI.Forms.GetForm(type, count);
+        }
+
+        public static klib.Dynamic GetValue(ref SAPbouiCOM.Item oItem, string msgnull = null, string invalidValue = null)
         {
             var value = String.Empty;
             var enabled = oItem.Enabled;
@@ -35,14 +42,14 @@ namespace SUI.Forms
                     case SAPbouiCOM.BoFormItemTypes.it_CHECK_BOX:
                         value = ((SAPbouiCOM.CheckBox)oItem.Specific).Checked.ToString(); break;
                     default:
-                        throw new LException(1, $"The item {oItem.UniqueID} not exist.");
+                        throw new SUIException(1, $"The item {oItem.UniqueID} not exist.");
                 }
 
                 if (!String.IsNullOrEmpty(invalidValue) && value.Trim().Equals(invalidValue, StringComparison.InvariantCultureIgnoreCase))
-                    throw new LException(11, oItem.UniqueID, oItem.Description);
+                    throw new SUIException(11, oItem.UniqueID, oItem.Description);
 
                 if (!String.IsNullOrEmpty(msgnull) && String.IsNullOrEmpty(value))
-                    throw new LException(10, oItem.UniqueID, oItem.Description);
+                    throw new SUIException(10, oItem.UniqueID, oItem.Description);
 
                 return klib.ValuesEx.To(value);
             }
@@ -55,13 +62,13 @@ namespace SUI.Forms
 
         }
 
-        public static klib.Values GetValue(ref SAPbouiCOM.Form oForm, string uid)
+        public static klib.Dynamic GetValue(ref SAPbouiCOM.Form oForm, string uid)
         {
             var oItem = oForm.Items.Item(uid);
             return GetValue(ref oItem);
         }
 
-        public static klib.Values GetValue(SAPbouiCOM.Column oColumn, object line, string msgnull = null)
+        public static klib.Dynamic GetValue(SAPbouiCOM.Column oColumn, object line, string msgnull = null)
         {
             var value = String.Empty;
             var cell = oColumn.Cells.Item(line);
@@ -78,11 +85,11 @@ namespace SUI.Forms
                     case SAPbouiCOM.BoFormItemTypes.it_CHECK_BOX:
                         value = ((SAPbouiCOM.CheckBox)cell.Specific).Checked.ToString(); break;
                     default:
-                        throw new LException(1, $"The column {oColumn.UniqueID} not exist.");
+                        throw new SUIException(1, $"The column {oColumn.UniqueID} not exist.");
                 }
 
                 if (!String.IsNullOrEmpty(msgnull) && String.IsNullOrEmpty(value))
-                    throw new LException(10, oColumn.UniqueID, oColumn.Description);
+                    throw new SUIException(10, oColumn.UniqueID, oColumn.Description);
 
                 return klib.ValuesEx.To(value);
             }
@@ -91,7 +98,7 @@ namespace SUI.Forms
             }
         }
 
-        public static klib.Values GetValue(ref SAPbouiCOM.Form oForm, string table, string column, int line = 0)
+        public static klib.Dynamic GetValue(ref SAPbouiCOM.Form oForm, string table, string column, int line = 0)
         {
             return klib.ValuesEx.To(oForm.DataSources.DBDataSources.Item(table).GetValue(column, line));
         }
@@ -134,7 +141,7 @@ namespace SUI.Forms
 
         //}
 
-        public static klib.Values GetUDSValue(ref SAPbouiCOM.Form Form, string uds)
+        public static klib.Dynamic GetUDSValue(ref SAPbouiCOM.Form Form, string uds)
         {
             return klib.ValuesEx.To(Form.DataSources.UserDataSources.Item(uds).Value);
         }
@@ -224,7 +231,7 @@ namespace SUI.Forms
                     case SAPbouiCOM.BoFormItemTypes.it_COMBO_BOX:
                         ((SAPbouiCOM.ComboBox)oItem.Specific).Select(value.ToString(), SAPbouiCOM.BoSearchKey.psk_ByValue); break;
                     default:
-                        throw new LException(1, $"The item {oItem.UniqueID} not exist."); break;
+                        throw new SUIException(1, $"The item {oItem.UniqueID} not exist."); break;
 
                 }
 
@@ -254,7 +261,7 @@ namespace SUI.Forms
                     case SAPbouiCOM.BoFormItemTypes.it_CHECK_BOX:
                         ((SAPbouiCOM.CheckBox)cell.Specific).Checked = value; break;
                     default:
-                        throw new LException(1, $"The column {oColumn.UniqueID} not exist.");
+                        throw new SUIException(1, $"The column {oColumn.UniqueID} not exist.");
                 }
             }
             finally
@@ -296,7 +303,7 @@ namespace SUI.Forms
 #if DEBUG
                 System.Windows.Forms.MessageBox.Show(ex.Message);
 #endif
-                throw new LException(12, table, column, line);
+                throw new SUIException(12, table, column, line);
             }
         }
 
@@ -315,7 +322,7 @@ namespace SUI.Forms
                 case SAPbouiCOM.BoFormItemTypes.it_BUTTON:
                     Item.Click(); break;
                 default:
-                    throw new LException(1, $"The click item {Item.UniqueID} not implemented."); break;
+                    throw new SUIException(1, $"The click item {Item.UniqueID} not implemented."); break;
 
             }
         }
@@ -345,9 +352,6 @@ namespace SUI.Forms
 
         #endregion
         #region open
-
-
-
         public static SAPbouiCOM.Form Load(StreamReader strXml)
         {
 
@@ -362,6 +366,16 @@ namespace SUI.Forms
             return oForm;
         }
 
+        public static SAPbouiCOM.Form Load(FileInfo file)
+        {
+
+            var str_xml = System.IO.File.ReadAllText(file.FullName);
+            var oFormCreationParams = (SAPbouiCOM.FormCreationParams)Conn.UI.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_FormCreationParams);
+            oFormCreationParams.XmlData = str_xml;
+            var oForm = Conn.UI.Forms.AddEx(oFormCreationParams);
+            oForm.Visible = true;
+            return oForm;
+        }
         #endregion
         #region layout
         /// <summary>

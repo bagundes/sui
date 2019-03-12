@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SAPbouiCOM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,14 @@ namespace SUI
 {
     public class Conn
     {
-        internal static SAPbouiCOM.Application UI;
+        private const string LOG = "CONN";
+
+        public static Application UI;
+
+        #region Connect
         public static void Connect(string commandLineArg = null, int appId = -1)
         {
-            klib.Shell.WriteLine("Try to connect SAP UI");
+            klib.Shell.WriteLine(R.Project.ID, LOG, $"SUI - Connecting ...");
             if (String.IsNullOrEmpty(commandLineArg))
                 commandLineArg = R.CommandLineArg;
 
@@ -19,14 +24,14 @@ namespace SUI
             sga.Connect(commandLineArg);
             UI = sga.GetApplication(appId);
 
-            klib.Shell.WriteLine("SAP UI connected");
-            var init = new Init();
-            init.Construct();
+            klib.Shell.WriteLine(R.Project.ID, LOG, $"SUI - Connected");            
         }
 
         public static dynamic GetDI()
         {
+            klib.Shell.WriteLine(R.Project.ID, LOG, "SUI - Getting DI");
             return UI.Company.GetDICompany();
         }
+        #endregion
     }
 }

@@ -123,4 +123,12 @@
   <data name="L00002_1" xml:space="preserve">
     <value>[{0}0002] - Parameter invalid: {1}</value>
   </data>
+  <data name="L00003_1" xml:space="preserve">
+    <value>[{0}0003] - The add-on not found the {1} file.</value>
+    <comment>FATAL; The file isn't embedded in the project or it not exists.</comment>
+  </data>
+  <data name="L00004_3" xml:space="preserve">
+    <value>[{0}0004] - The {1} {2} is required. {3}</value>
+    <comment>INFO; The user needs add or select the options in the field.</comment>
+  </data>
 </root>

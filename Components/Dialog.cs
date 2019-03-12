@@ -10,11 +10,12 @@ namespace SUI.Components
 {
     public static class Dialog
     {
-        private static klib.Values value { get; set; }
-        public static klib.Values Value => value;
-        public static klib.Values OpenFile(string title, string filter)
+        private static string LOG => "DIALOG";
+        private static klib.Dynamic value { get; set; }
+        public static klib.Dynamic Value => value;
+        public static klib.Dynamic OpenFile(string title, string filter)
         {
-            value = klib.ValuesEx.Empty;
+            value = klib.Dynamic.Empty;
 
             Thread t = new Thread(() =>
             {
@@ -26,7 +27,7 @@ namespace SUI.Components
                 if (dr == DialogResult.OK)
                 {
                     string fileName = openFileDialog.FileName;
-                    value = new klib.Values(fileName);
+                    value = new klib.Dynamic(fileName);
                 }
             });          // Kick off a new thread
             t.IsBackground = true;
@@ -35,7 +36,8 @@ namespace SUI.Components
 
             while (t.ThreadState == ThreadState.Background)
                 Application.DoEvents();
-            
+
+            klib.Shell.WriteLine(R.Project.ID, LOG, $"SUI - Selected the file: {value}");
 
             return value;
         }

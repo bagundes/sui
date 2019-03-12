@@ -19,7 +19,7 @@ namespace SUI.content {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Location {
@@ -75,6 +75,24 @@ namespace SUI.content {
         internal static string L00002_1 {
             get {
                 return ResourceManager.GetString("L00002_1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [{0}0003] - The add-on not found the {1} file..
+        /// </summary>
+        internal static string L00003_1 {
+            get {
+                return ResourceManager.GetString("L00003_1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [{0}0004] - The {1} {2} is required. {3}.
+        /// </summary>
+        internal static string L00004_3 {
+            get {
+                return ResourceManager.GetString("L00004_3", resourceCulture);
             }
         }
     }
